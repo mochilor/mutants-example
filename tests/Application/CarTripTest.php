@@ -42,6 +42,27 @@ class CarTripTest extends TestCase
     /**
      * @test
      */
+    public function whenCityNotFoundThenAnExceptionIsThrown(): void
+    {
+        $carUuid = '5f219c62-ab97-41ad-ac29-7cf3d4162819';
+        $cityUuid = '26066b7a-dfc7-46e6-952b-d7d87e899ff0';
+
+        $car = new Car(Uuid::fromString($carUuid), 1);
+        $this->carRepository
+            ->expects($this->once())
+            ->method('find')
+            ->with($carUuid)
+            ->willReturn($car);
+
+        $this->expectException(EntityNotFoundException::class);
+        $this->expectExceptionMessage('Entity not found');
+
+        ($this->carTrip)($carUuid, $cityUuid);
+    }
+
+    /**
+     * @test
+     */
     public function whenCarHasNotEnoughFuelAnExceptionIsThrown(): void
     {
         $carUuid = '5f219c62-ab97-41ad-ac29-7cf3d4162819';
@@ -71,6 +92,35 @@ class CarTripTest extends TestCase
      * @test
      */
     public function whenCarHasEnoughFuelWeCanMakeATrip(): void
+    {
+        $carUuid = '5f219c62-ab97-41ad-ac29-7cf3d4162819';
+        $cityUuid = '26066b7a-dfc7-46e6-952b-d7d87e899ff0';
+
+        $car = new Car(Uuid::fromString($carUuid), 1000);
+        $this->carRepository
+            ->expects($this->once())
+            ->method('find')
+            ->with($carUuid)
+            ->willReturn($car);
+        $this->carRepository
+            ->expects($this->once())
+            ->method('save')
+            ->with($car);
+
+        $city = new City(Uuid::fromString($carUuid), 'Berlin', 1000);
+        $this->cityRepository
+            ->expects($this->once())
+            ->method('find')
+            ->with($cityUuid)
+            ->willReturn($city);
+
+        ($this->carTrip)($carUuid, $cityUuid);
+    }
+
+    /**
+     * @test
+     */
+    public function whenCarHasMoreThanEnoughFuelWeCanMakeATrip(): void
     {
         $carUuid = '5f219c62-ab97-41ad-ac29-7cf3d4162819';
         $cityUuid = '26066b7a-dfc7-46e6-952b-d7d87e899ff0';
