@@ -12,7 +12,7 @@ services:
       # Add `start_with_request=yes` to start debug session on each request
       XDEBUG_CONFIG: >-
         client_host=host.docker.internal
-      XDEBUG_MODE: debug
+      XDEBUG_MODE: coverage
       # This should correspond to the server declared in PHPStorm `Preferences | Languages & Frameworks | PHP | Servers`
       # Then PHPStorm will use the corresponding path mappings
       PHP_IDE_CONFIG: serverName=symfony
