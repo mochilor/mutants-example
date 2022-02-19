@@ -90,13 +90,15 @@ class CarTripTest extends TestCase
 
     /**
      * @test
+     * @dataProvider fullTripDataProvider
      */
-    public function whenCarHasEnoughFuelWeCanMakeATrip(): void
+    public function whenCarHasEnoughFuelWeCanMakeATrip(int $fuel): void
     {
         $carUuid = '5f219c62-ab97-41ad-ac29-7cf3d4162819';
         $cityUuid = '26066b7a-dfc7-46e6-952b-d7d87e899ff0';
+        $distance = 1000;
 
-        $car = new Car(Uuid::fromString($carUuid), 1000);
+        $car = new Car(Uuid::fromString($carUuid), $fuel);
         $this->carRepository
             ->expects($this->once())
             ->method('find')
@@ -107,7 +109,7 @@ class CarTripTest extends TestCase
             ->method('save')
             ->with($car);
 
-        $city = new City(Uuid::fromString($carUuid), 'Berlin', 1000);
+        $city = new City(Uuid::fromString($carUuid), 'Berlin', $distance);
         $this->cityRepository
             ->expects($this->once())
             ->method('find')
@@ -115,34 +117,22 @@ class CarTripTest extends TestCase
             ->willReturn($city);
 
         ($this->carTrip)($carUuid, $cityUuid);
+
+        $this->assertEquals(
+            $fuel - $distance,
+            $car->fuel()
+        );
     }
 
-    /**
-     * @test
-     */
-    public function whenCarHasMoreThanEnoughFuelWeCanMakeATrip(): void
+    public function fullTripDataProvider(): array
     {
-        $carUuid = '5f219c62-ab97-41ad-ac29-7cf3d4162819';
-        $cityUuid = '26066b7a-dfc7-46e6-952b-d7d87e899ff0';
-
-        $car = new Car(Uuid::fromString($carUuid), 1001);
-        $this->carRepository
-            ->expects($this->once())
-            ->method('find')
-            ->with($carUuid)
-            ->willReturn($car);
-        $this->carRepository
-            ->expects($this->once())
-            ->method('save')
-            ->with($car);
-
-        $city = new City(Uuid::fromString($carUuid), 'Berlin', 1000);
-        $this->cityRepository
-            ->expects($this->once())
-            ->method('find')
-            ->with($cityUuid)
-            ->willReturn($city);
-
-        ($this->carTrip)($carUuid, $cityUuid);
+        return [
+            'Enough fuel' => [
+                'fuel' => 1000,
+            ],
+            'More than enough fuel' => [
+                'fuel' => 2000,
+            ],
+        ];
     }
 }
